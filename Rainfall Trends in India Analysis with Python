@@ -13,7 +13,8 @@ from sklearn.ensemble import IsolationForest
 rainfall_data = pd.read_csv("C:\\Users\\AMRENDRA KUM AR\\OneDrive\\Desktop\\CSV Datas\\rainfall_area-wt_India_1901-2015.csv")
 print(rainfall_data.head())
 
-# analyze trends in annual rainfall over time
+
+##[1] :- analyze trends in annual rainfall over time
 annual_rainfall = rainfall_data[['YEAR', 'ANNUAL']]
 
 fig_annual = go.Figure()
@@ -44,7 +45,7 @@ fig_annual.show()
 print("The above graph shows significant year-to-year variability in India’s annual rainfall, with no apparent long-term upward or downward trend over the century. The red dashed line indicates the mean rainfall, around which the annual rainfall oscillates. Notable peaks and troughs highlight extreme rainfall events and dry years.")
 
 
-# identify months with the highest and lowest rainfall on average
+# --> identify months with the highest and lowest rainfall on average
 monthly_columns = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 monthly_avg = rainfall_data[monthly_columns].mean()
 
@@ -71,10 +72,9 @@ fig_monthly.show()
 print("This bar chart illustrates a highly uneven distribution of rainfall across months, with July and August receiving the highest average rainfall. The red   dashed line represents the mean monthly rainfall, showing that most months receive rainfall below the average, except during the monsoon months (June to September).")
 
 
-# seasonal rainfall distribution
+# --> seasonal rainfall distribution
 seasonal_columns = ['Jan-Feb', 'Mar-May', 'Jun-Sep', 'Oct-Dec']
 seasonal_avg = rainfall_data[seasonal_columns].mean()
-
 fig_seasonal = px.bar(
     x=seasonal_avg.index,
     y=seasonal_avg.values,
@@ -84,7 +84,6 @@ fig_seasonal = px.bar(
     color=seasonal_avg.values,
     color_continuous_scale=['gold', 'skyblue', 'green', 'orange']
 )
-
 fig_seasonal.update_traces(marker_line_color='black', marker_line_width=1)
 fig_seasonal.update_layout(
     template='plotly_white',
@@ -96,7 +95,8 @@ fig_seasonal.show()
 print("The seasonal distribution highlights the dominance of the monsoon season (June to September), which contributes the bulk of annual rainfall (around 890 mm). In contrast, the other seasons (January-February, March-May, and October-December) contribute significantly less to the annual total,which emphasizes the critical role of the monsoon.")
 
 
-# Assessing the Impact of Climate Change in the Rainfall Trends in India
+
+##[2]:- Assessing the Impact of Climate Change in the Rainfall Trends in India
 '''Now, we will calculate a 10-year rolling average of annual rainfall to identify long-term trends and smooth out short-term variations. 
 This will help assess the potential impact of climate change on rainfall patterns'''
 
@@ -104,7 +104,6 @@ This will help assess the potential impact of climate change on rainfall pattern
 rainfall_data['10-Year Rolling Avg'] = rainfall_data['ANNUAL'].rolling(window=10).mean()
 
 fig_climate_change = go.Figure()
-
 fig_climate_change.add_trace(go.Scatter(
     x=rainfall_data['YEAR'],
     y=rainfall_data['ANNUAL'],
@@ -113,7 +112,6 @@ fig_climate_change.add_trace(go.Scatter(
     line=dict(color='blue', width=2),
     opacity=0.6
 ))
-
 fig_climate_change.add_trace(go.Scatter(
     x=rainfall_data['YEAR'],
     y=rainfall_data['10-Year Rolling Avg'],
@@ -121,7 +119,6 @@ fig_climate_change.add_trace(go.Scatter(
     name='10-Year Rolling Avg',
     line=dict(color='red', width=3)
 ))
-
 fig_climate_change.update_layout(
     title='Impact of Climate Change on Rainfall Patterns (1901-2015)',
     xaxis_title='Year',
@@ -130,9 +127,31 @@ fig_climate_change.update_layout(
     legend=dict(title="Legend"),
     height=500
 )
-
 fig_climate_change.show()
 print("This graph shows the annual rainfall trends in India(blue line) and a 10-year rolling average (red line)to identify long-term patterns,While annual rainfall exhibits significant variability the 10-year rolling average indicates a slight downward trend post-1960 which suggests a possible impact of  climate change on rainfall distribution. Periods of higher averages in the early 20th-century contrast with more consistent but lower averages in recent decades")
+
+
+
+##[3]:- identifying drought and extreme rainfall years
+
+mean_rainfall = rainfall_data['ANNUAL'].mean()
+std_dev_rainfall = rainfall_data['ANNUAL'].std()
+
+drought_years = rainfall_data[rainfall_data['ANNUAL'] < (mean_rainfall - 1.5 * std_dev_rainfall)]
+extreme_rainfall_years = rainfall_data[rainfall_data['ANNUAL'] > (mean_rainfall + 1.5 * std_dev_rainfall)]
+
+# correlating seasonal rainfall with annual rainfall totals
+seasonal_columns = ['Jan-Feb', 'Mar-May', 'Jun-Sep', 'Oct-Dec']
+seasonal_correlations = {
+    season: pearsonr(rainfall_data[season], rainfall_data['ANNUAL'])[0] for season in seasonal_columns
+}
+# displaying results for drought/extreme years and correlations
+drought_years_summary = drought_years[['YEAR', 'ANNUAL']].reset_index(drop=True)
+extreme_rainfall_years_summary = extreme_rainfall_years[['YEAR', 'ANNUAL']].reset_index(drop=True)
+seasonal_correlations_summary = pd.DataFrame.from_dict(seasonal_correlations, orient='index', columns=['Correlation'])
+print("The analysis identifies five significant drought years (e.g., 2002 and 2009) and seven extreme rainfall years (e.g., 1917 and 1990) based on deviations from the mean annual rainfall. Seasonal rainfall correlations with annual totals reveal that the monsoon season (June-September) has the strongest correlation (0.93)")
+drought_years_summary, extreme_rainfall_years_summary, seasonal_correlations_summary
+
 
 # identifying drought and extreme rainfall years
 
@@ -156,7 +175,8 @@ print("The analysis identifies five significant drought years (e.g., 2002 and 20
 drought_years_summary, extreme_rainfall_years_summary, seasonal_correlations_summary
 
 
-## Detecting Anomalies in the Rainfall Trends in India
+
+##[4]:- Detecting Anomalies in the Rainfall Trends in India
 '''Now, using an Isolation Forest algorithm, we will identify anomalies in both annual and monthly rainfall. 
 This will highlight specific years or months with unusual rainfall patterns. Let’s start with identifying anomalies in annual rainfall:'''
 # detect anomalous rainfall years based on annual data
@@ -205,11 +225,11 @@ fig_annual_anomalies.update_layout(
     legend=dict(title="Legend"),
     height=500
 )
-
 fig_annual_anomalies.show()
 
 
-## Now, let’s identify anomalies in monthly rainfall:
+
+##[5]:- Now, let’s identify anomalies in monthly rainfall:
 # preparing data for monthly anomalies
 monthly_anomalies = []
 for column in monthly_columns:
@@ -224,7 +244,6 @@ fig_monthly_anomalies = px.line(
     title='Monthly Rainfall Anomalies in India (1901-2015)',
     color_discrete_sequence=px.colors.qualitative.Set3
 )
-
 fig_monthly_anomalies.add_trace(go.Scatter(
     x=monthly_anomalies_df_long['Year'],
     y=monthly_anomalies_df_long['Rainfall'],
@@ -232,18 +251,18 @@ fig_monthly_anomalies.add_trace(go.Scatter(
     name='Anomalous Months',
     marker=dict(color='red', size=5, symbol='circle')
 ))
-
 fig_monthly_anomalies.update_layout(
     template='plotly_white',
     legend=dict(title="Legend"),
     height=500
 )
-
 fig_monthly_anomalies.show()
 print("This graph underscores the uneven distribution and high dependence on monsoonal rainfall for India’s water resources.")
 print("This graph highlights years with significant rainfall anomalies, where annual rainfall deviated substantially from the mean. Drought years (e.g., 1905, 1965, 2002) and extreme rainfall years (e.g., 1917, 1961) are marked as red points, which showcase outliers in rainfall patterns. ")
 
-##Correlating Seasonal Rainfall with Annual Totals
+
+
+##[6]:- Correlating Seasonal Rainfall with Annual Totals
 '''Now, we will calculate the correlation coefficients between seasonal rainfall and annual rainfall totals to understand 
 how much each season contributes to the overall yearly rainfall:'''
 # correlation analysis between monsoon (Jun-Sep) rainfall and other seasons
@@ -260,7 +279,6 @@ correlation_data = pd.DataFrame({
     'Season': list(relationships.keys()),
     'Correlation Coefficient': list(relationships.values())
 })
-
 fig = px.bar(
     correlation_data,
     x='Season',
@@ -271,7 +289,6 @@ fig = px.bar(
     color='Correlation Coefficient',
     color_continuous_scale='Blues'
 )
-
 fig.add_hline(
     y=0,
     line_dash="dash",
@@ -286,3 +303,76 @@ fig.update_layout(
 )
 fig.show()
 print("This graph shows the correlation between monsoon rainfall and rainfall during other seasons. The October-December season has the highest correlation (0.29), which suggests a moderate relationship, possibly due to the post-monsoon retreat rains")
+
+
+
+##[7]:- Grouping Years Based on Rainfall Patterns
+'''Now, by applying k-means clustering, we will group years into three categories: Dry, 
+Normal, and Wet, based on rainfall patterns:'''
+
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# prepare data for clustering
+rainfall_features = rainfall_data[['Jan-Feb', 'Mar-May', 'Jun-Sep', 'Oct-Dec', 'ANNUAL']]
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(rainfall_features)
+
+# perform k-means clustering
+kmeans = KMeans(n_clusters=3, random_state=42)
+rainfall_data['Rainfall_Cluster'] = kmeans.fit_predict(scaled_features)
+
+# map cluster labels to categories (e.g., Dry, Normal, Wet)
+cluster_labels = {0: 'Dry', 1: 'Normal', 2: 'Wet'}
+rainfall_data['Rainfall_Category'] = rainfall_data['Rainfall_Cluster'].map(cluster_labels)
+fig = px.scatter(
+    rainfall_data,
+    x='YEAR',
+    y='ANNUAL',
+    color='Rainfall_Category',
+    title='Clustering of Years Based on Rainfall Patterns',
+    labels={'YEAR': 'Year', 'ANNUAL': 'Annual Rainfall (mm)', 'Rainfall_Category': 'Rainfall Category'},
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    hover_data={'Rainfall_Cluster': True, 'Rainfall_Category': True}
+)
+fig.update_layout(
+    template='plotly_white',
+    legend_title='Rainfall Category',
+    height=500
+)
+fig.show()
+print("The clusters reveal that most years fall into the Normal category, while Wet years (above-normal rainfall) are sporadically distributed throughout the timeline, with a concentration in the early and mid-20th century.")
+
+
+
+##[8]:- Forecasting Future Rainfall
+#Finally, we will use the Prophet library to forecast annual rainfall for the next 20 years:
+
+rainfall_data['DATE'] = pd.to_datetime(rainfall_data['YEAR'], format='%Y')
+annual_rainfall_ts = rainfall_data.set_index('DATE')['ANNUAL']
+
+# use: pip install prophet
+
+from prophet import Prophet
+# Prepare the data for Prophet
+prophet_data = annual_rainfall_ts.reset_index()
+prophet_data.columns = ['ds', 'y']
+
+from prophet.plot import plot_plotly, plot_components_plotly
+
+prophet_model = Prophet()
+prophet_model.fit(prophet_data)
+
+# create a future dataframe for the next 20 years
+future = prophet_model.make_future_dataframe(periods=20, freq='Y')
+forecast = prophet_model.predict(future)
+fig_forecast = plot_plotly(prophet_model, forecast)
+fig_forecast.update_layout(
+    title='Annual Rainfall Forecast Using Prophet',
+    xaxis_title='Year',
+    yaxis_title='Rainfall (mm)',
+    template='plotly_white',
+    height=500
+)
+fig_forecast.show()
+print("The blue line represents the model’s forecast trend, while the shaded area indicates the confidence interval. The trend reveals a slight decline in annual rainfall over time, with notable year-to-year variability (black dots representing actual data points). The model captures the variability well but highlights that future rainfall may continue to slightly decrease, which emphasizes the need for adaptive strategies to manage potential water resource challenges.")
