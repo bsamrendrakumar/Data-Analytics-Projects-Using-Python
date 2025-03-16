@@ -50,18 +50,14 @@ print(summary_stats)
 # Now, let’s have a look at the gender distribution in the data and the correlation between the numerical columns in the dataset
 # gender Distribution
 gender_counts = health_data['Gender'].value_counts()
-
 # correlation Matrix for numerical health metrics
 correlation_matrix = health_data[['Age', 'HeartRate', 'RespiratoryRate', 'BodyTemperature', 'OxygenSaturation']].corr()
-
 # plotting the findings
 fig, axes = plt.subplots(1, 2, figsize=(12, 6))
-
 # gender distribution plot
 gender_counts.plot(kind='pie', ax=axes[0], autopct='%1.1f%%', startangle=90, colors=['#ff9999','#66b3ff'])
 axes[0].set_ylabel('')
 axes[0].set_title('Gender Distribution')
-
 # correlation matrix plot
 sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', ax=axes[1])
 axes[1].set_title('Correlation Matrix')
@@ -104,8 +100,111 @@ axes[1].set_xlabel('Gender')
 axes[1].set_ylabel('Oxygen Saturation (%)')
 plt.tight_layout()
 plt.show()
-'''The systolic blood pressure, represented in blue, shows a more spread-out distribution with peaks suggesting common readings around 120 mmHg and 140 mmHg. The diastolic blood pressure, in red, appears to have a narrower distribution, with a significant peak around 80 mmHg. The spread of systolic values is broader than the diastolic ones, which is typical as systolic pressure tends to vary more with factors like activity level and stress. This distribution is consistent with general population trends where a systolic reading of around 120 mmHg and a diastolic reading of around 80 mmHg are considered normal.
+'''The systolic blood pressure, represented in blue, shows a more spread-out distribution with peaks suggesting common readings around 120 mmHg and 140 mmHg. 
+The diastolic blood pressure, in red, appears to have a narrower distribution, with a significant peak around 80 mmHg. The spread of systolic values is broader than the 
+diastolic ones, which is typical as systolic pressure tends to vary more with factors like activity level and stress. This distribution is consistent with general population
+trends where a systolic reading of around 120 mmHg and a diastolic reading of around 80 mmHg are considered normal.
+For heart rate, both males and females show similar median values with a relatively similar interquartile range, indicating no significant difference in heart rate between genders
+within this dataset. In terms of oxygen saturation, again, both genders exhibit nearly identical medians and interquartile ranges, suggesting that oxygen saturation does not differ
+notably between males and females in this sample. There are a few outliers in oxygen saturation for both genders, indicating a few individuals with lower than typical values,
+but these do not seem to affect the overall distribution significantly'''
 
-For heart rate, both males and females show similar median values with a relatively similar interquartile range, indicating no significant difference in heart rate between genders within this dataset. In terms of oxygen saturation, again, both genders exhibit nearly identical medians and interquartile ranges, suggesting that oxygen saturation does not differ notably between males and females in this sample. There are a few outliers in oxygen saturation for both genders, indicating a few individuals with lower than typical values, but these do not seem to affect the overall distribution significantly
+# Now, let’s analyze heart rate and oxygen saturation by sleep quality and stress levels:
+# categorizing sleep quality and stress level for better analysis
+sleep_quality_order = ['excellent', 'good', 'fair', 'poor']
+stress_level_order = ['low', 'moderate', 'high']
+# creating plots to examine relationships
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+# heart rate by sleep quality
+sns.boxplot(x='SleepQuality', y='HeartRate', data=health_data, order=sleep_quality_order, ax=axes[0, 0])
+axes[0, 0].set_title('Heart Rate by Sleep Quality')
+axes[0, 0].set_xlabel('Sleep Quality')
+axes[0, 0].set_ylabel('Heart Rate (beats per minute)')
+# heart rate by stress level
+sns.boxplot(x='StressLevel', y='HeartRate', data=health_data, order=stress_level_order, ax=axes[0, 1])
+axes[0, 1].set_title('Heart Rate by Stress Level')
+axes[0, 1].set_xlabel('Stress Level')
+axes[0, 1].set_ylabel('Heart Rate (beats per minute)')
+# oxygen saturation by sleep quality
+sns.boxplot(x='SleepQuality', y='OxygenSaturation', data=health_data, order=sleep_quality_order, ax=axes[1, 0])
+axes[1, 0].set_title('Oxygen Saturation by Sleep Quality')
+axes[1, 0].set_xlabel('Sleep Quality')
+axes[1, 0].set_ylabel('Oxygen Saturation (%)')
+# oxygen saturation by stress level
+sns.boxplot(x='StressLevel', y='OxygenSaturation', data=health_data, order=stress_level_order, ax=axes[1, 1])
+axes[1, 1].set_title('Oxygen Saturation by Stress Level')
+axes[1, 1].set_xlabel('Stress Level')
+axes[1, 1].set_ylabel('Oxygen Saturation (%)')
+plt.tight_layout()
+plt.show()
+'''Heart rate appears relatively consistent across different levels of sleep quality and stress, with a slight increase in variation for those reporting poor sleep. Oxygen saturation shows a minimal decrease in median values from excellent to poor sleep quality, with some outliers indicating lower saturation for excellent and good sleep. When correlated with stress levels, oxygen saturation remains largely unchanged. Overall, while there are outliers, the central tendencies suggest that neither heart rate nor oxygen saturation is greatly affected by sleep quality or stress level
+within this dataset.'''
 
-#
+# Now, let’s analyze the respiratory rate and body temperature by activity levels:
+# creating plots to examine relationships between activity level and other health metrics
+fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+# respiratory rate by activity level
+sns.boxplot(x='ActivityLevel', y='RespiratoryRate', data=health_data, ax=axes[0])
+axes[0].set_title('Respiratory Rate by Activity Level')
+axes[0].set_xlabel('Activity Level')
+axes[0].set_ylabel('Respiratory Rate (breaths per minute)')
+# body temperature by activity level
+sns.boxplot(x='ActivityLevel', y='BodyTemperature', data=health_data, ax=axes[1])
+axes[1].set_title('Body Temperature by Activity Level')
+axes[1].set_xlabel('Activity Level')
+axes[1].set_ylabel('Body Temperature (°F)')
+plt.tight_layout()
+plt.show()
+'''The respiratory rate tends to increase with activity level, as indicated by higher median rates for walking and running compared to resting. 
+It aligns with physiological responses to exercise, where the breathing rate increases to meet oxygen demands. For body temperature, there is a slight upward trend from 
+resting to running, which is consistent with the body heating up during physical exertion. There are outliers in body temperature at the resting and running levels, 
+suggesting some individuals have temperatures outside the typical range for these activities. Overall, the trends observed are in line with expected physiological responses to 
+varying levels of activity.'''
+
+# Grouping Patients
+# The data is not so complicated enough that we need to use a clustering algorithm to group patients. So, let’s group patients based on:
+
+#[1] Age Group: Young, Middle-aged, Senior
+#[2] Blood Pressure Category: Normal, Elevated, Hypertension Stage 1, Hypertension Stage 2
+#[3] Heart Rate Category: Low, Normal, High
+#[4] Oxygen Saturation Category: Normal, Low
+# function to categorize Age
+def age_group(age):
+    if age <= 35:
+        return 'Young'
+    elif age <= 55:
+        return 'Middle-aged'
+    else:
+        return 'Senior'
+# function to categorize Blood Pressure
+def bp_category(systolic, diastolic):
+    if systolic < 120 and diastolic < 80:
+        return 'Normal'
+    elif 120 <= systolic < 140 or 80 <= diastolic < 90:
+        return 'Elevated'
+    elif 140 <= systolic < 160 or 90 <= diastolic < 100:
+        return 'Hypertension Stage 1'
+    else:
+        return 'Hypertension Stage 2'
+# function to categorize Heart Rate
+def hr_category(hr):
+    if hr < 60:
+        return 'Low'
+    elif hr <= 100:
+        return 'Normal'
+    else:
+        return 'High'
+# function to categorize Oxygen Saturation
+def oxy_category(oxy):
+    if oxy < 94:
+        return 'Low'
+    else:
+        return 'Normal'
+# applying categorizations
+health_data['AgeGroup'] = health_data['Age'].apply(age_group)
+health_data['BPCategory'] = health_data.apply(lambda x: bp_category(x['SystolicBP'], x['DiastolicBP']), axis=1)
+health_data['HRCategory'] = health_data['HeartRate'].apply(hr_category)
+health_data['OxyCategory'] = health_data['OxygenSaturation'].apply(oxy_category)
+print(health_data[['Age', 'AgeGroup', 'SystolicBP', 'DiastolicBP', 'BPCategory', 'HeartRate', 'HRCategory', 'OxygenSaturation', 'OxyCategory']].head())
+
+# Now, let’s visualize the groups:
