@@ -23,6 +23,7 @@ sns.set(style="whitegrid")
 # summary statistics
 summary_stats = health_data.describe()
 
+
 # plotting distributions of numerical features
 fig, axes = plt.subplots(3, 2, figsize=(14, 18))
 sns.histplot(health_data['Age'], bins=20, kde=True, ax=axes[0, 0])
@@ -208,3 +209,27 @@ health_data['OxyCategory'] = health_data['OxygenSaturation'].apply(oxy_category)
 print(health_data[['Age', 'AgeGroup', 'SystolicBP', 'DiastolicBP', 'BPCategory', 'HeartRate', 'HRCategory', 'OxygenSaturation', 'OxyCategory']].head())
 
 # Now, let’s visualize the groups:
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+# Age Group count plot
+sns.countplot(x='AgeGroup', data=health_data, ax=axes[0, 0])
+axes[0, 0].set_title('Distribution of Age Groups')
+# Blood Pressure Category count plot
+sns.countplot(x='BPCategory', data=health_data, ax=axes[0, 1])
+axes[0, 1].set_title('Distribution of Blood Pressure Categories')
+# Heart Rate Category count plot
+sns.countplot(x='HRCategory', data=health_data, ax=axes[1, 0])
+axes[1, 0].set_title('Distribution of Heart Rate Categories')
+# Oxygen Saturation Category count plot
+sns.countplot(x='OxyCategory', data=health_data, ax=axes[1, 1])
+axes[1, 1].set_title('Distribution of Oxygen Saturation Categories')
+# Show the plots
+plt.tight_layout()
+plt.show()
+
+'''
+Observation:
+Distribution of Age Groups: The count plot shows that the ‘Senior’ category has the highest count, followed by the ‘Young’ and ‘Middle-aged’ categories. It suggests that seniors are the largest age group in this dataset.
+Distribution of Blood Pressure Categories: The majority of the dataset falls under ‘Normal’ blood pressure, with fewer instances in the ‘Elevated’ and ‘Hypertension Stage 1’. ‘Hypertension Stage 2’ has the lowest count, indicating that severe hypertension is less common among the participants.
+Distribution of Heart Rate Categories: Most individuals have a ‘Normal’ heart rate, with very few falling into the ‘Low’ or ‘High’ categories. It indicates that most individuals in this dataset have a heart rate that falls within the expected range.
+Distribution of Oxygen Saturation Categories: Almost everyone has ‘Normal’ oxygen saturation levels, with very few instances of ‘Low’ saturation. It suggests that oxygen deprivation is not a common issue in this group.
+'''
